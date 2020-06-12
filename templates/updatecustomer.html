@@ -1,0 +1,97 @@
+{% extends "navbar.html" %}
+{% block body %}
+<div class="row mt-5">
+  <div class="col-md-6 m-auto">
+    <div class="card card-body">
+      
+      <form action="/updatecustomer" method="POST" >
+        <div class="form-group">
+          {% if message != '' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             {% endif %}
+             <label for="">Customer ID</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="Enter Your ID"
+              value = "{{ customerid }}"
+              disabled=true
+            />
+            <label for="">Customer Name</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+             
+              name=""
+              class="form-control"
+              placeholder="Enter Your ID"
+              value = "{{ customername }}"
+              disabled=true
+            />
+            
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="customername"
+              class="form-control"
+              placeholder="Change Your Name"
+             
+            />
+            <label for="">Address</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+             
+              class="form-control"
+              placeholder="Enter Your Address"
+              value = "{{ address }}"
+              disabled=true
+            />
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="address"
+              class="form-control"
+              placeholder="Enter Your Address"
+             
+            />
+            <label for="">Age</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              
+              class="form-control"
+          
+              value = "{{ age }}"
+              disabled=true
+            />
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="age"
+              class="form-control"
+              placeholder="Enter Your Age"
+             
+            />
+
+           
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update Customer</button>
+      </form>
+      
+    </div>
+  </div>
+</div>
+</body>
+{% endblock %}
