@@ -254,5 +254,5 @@ def load_user(user):
     return ("hi")
 
 if __name__ == '__main__':
-    app.secret_key = 'mysecret'
+    app.config['SECRET_KEY'] = 'the random string'  
     app.run(debug=True)
