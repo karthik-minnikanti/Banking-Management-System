@@ -236,12 +236,14 @@ def deleteaccount():
         if account[4] == '0':
             return render_template('deleteaccount.html',message = 'Account is already in  inactive state')
 
-        mycursor.execute('UPDATE accounts SET accountstatus = %s WHERE accountnumber = %s',(status,accountnumber))
+        mycursor.execute('UPDATE accounts SET (accountstatus) = %s WHERE accountnumber = %s',(status,accountnumber))
         mydb.commit()
         return render_template('deleteaccount.html',message = 'Successfully deleted')
     return render_template('deleteaccount.html',message = '')
 @app.route('/logout')
 def logout():
+    if 'username' not in session:
+        return render_template('index.html', message= "")
     logout_user()
     session.pop('username',None)
     return render_template('index.html', message= "successfully logged out")
