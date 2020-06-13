@@ -3,7 +3,7 @@ import bcrypt
 from flask_login import logout_user, LoginManager
 import mysql.connector
 app = Flask(__name__)
-
+app.secret_key = 'super secret key'
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
