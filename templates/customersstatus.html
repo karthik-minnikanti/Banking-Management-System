@@ -1,0 +1,28 @@
+{% extends "navbar.html" %}
+{% block body %}
+<div class="container">
+<table class="table table-hover" style="margin-top: 80px;">
+    <thead>
+      <tr>
+        <th scope="col">Customer ID</th>
+        <th scope="col">Customer Name</th>
+        <th scope="col">Pan Number</th>
+        <th scope="col">status</th>
+        <th scope="col">Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr class="table-active">
+            <th scope="row">{{customer[0]}}</th>
+            <td>{{customer[1]}}</td>
+            <td>{{customer[2]}}</td>
+            <td>{{customer[4]}}</td>
+            <td>{{customer[5]}}</td>
+          </tr>
+        {% endfor %}
+      
+    </tbody>
+</table> 
+</div>
+      {% endblock %}

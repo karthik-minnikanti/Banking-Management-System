@@ -2,12 +2,14 @@ from flask import Flask, render_template, url_for, request, session, redirect
 import bcrypt
 from flask_login import logout_user, LoginManager
 import mysql.connector
+from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 
+dateTimeObj = datetime.now()
 
 mydb = mysql.connector.connect(
   host="sql2.freesqldatabase.com",
@@ -25,7 +27,7 @@ def index():
 
     return render_template('index.html',message='')
 
-
+# login route
 @app.route('/login', methods=['POST','GET'])
 def login():
     if request.method == 'POST':
@@ -50,7 +52,7 @@ def login():
         return render_template('index.html')
 
 
-
+# Register Route
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
@@ -68,9 +70,10 @@ def register():
         else:
             return 'User-already exists'        
     return render_template('register.html')
-
+# Create Customer Route
 @app.route('/createcustomer',methods=['POST', 'GET'])
 def createCustomer():
+    
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method == 'POST':
@@ -88,13 +91,14 @@ def createCustomer():
             newcustomerid = customerid[0] + 1
             mycursor.execute("UPDATE customerids SET customerid = %s WHERE customerid = %s" ,(newcustomerid,customerid[0]))
             mydb.commit()
-            mycursor.execute('INSERT INTO customers(customerid,customename,pannumber,address,age,gender,message)   VALUES (%s,%s,%s,%s,%s,%s,%s)', (customerid[0],name,pannumber,address,age,gender,message))
+            mycursor.execute('INSERT INTO customers(customerid,customename,pannumber,address,age,gender,message,lastupdated)   VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (customerid[0],name,pannumber,address,age,gender,message,dateTimeObj))
             mydb.commit()
             return render_template('createcustomer.html',message='Successfully created')
         return render_template('createcustomer.html',message='PanNumber already Exists')
         
 
     return render_template('createcustomer.html',message='')
+# search for update
 @app.route('/searchandupdate',methods=['POST', 'GET'])
 def searchcustomer():
     if session['role'] == 'cashier':
@@ -129,6 +133,7 @@ def searchcustomer():
                         return render_template('updatecustomer.html',message='',customerid=customer[0],address= customer[6],customername = customer[1],age=customer[7])
                     return render_template('searchandupdate.html',message='Customer is inactive')
     return render_template('searchandupdate.html',message='')
+# serach for delete
 @app.route('/searchanddelete',methods=['POST', 'GET'])
 def searchanddelete():
     if session['role'] == 'cashier':
@@ -163,18 +168,22 @@ def searchanddelete():
                         return render_template('updatecustomer.html',message='',customerid=customer[0],address= customer[6],customername = customer[1],age=customer[7])
                     return render_template('searchanddelete.html',message='Customer is inactive')
     return render_template('searchanddelete.html',message='')
+# delete customer
 @app.route('/deletecustomer',methods=['POST', 'GET'])
 def deletecustomer():
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method == 'POST':
         status = 0
-        mycursor.execute("UPDATE customers SET status = %s WHERE customerid = %s" ,(status,session['customerid']))
+        mycursor.execute("UPDATE customers SET status = %s, lastupdated= %s WHERE customerid = %s" ,(status,dateTimeObj,session['customerid']))
+        mydb.commit()
+        mycursor.execute('UPDATE  customers SET message = %s,lastupdated= %s WHERE customerid = %s',('Customer is set to inactive',dateTimeObj,session['customerid']) )
         mydb.commit()
         return render_template('searchanddelete.html',message='Successfully Deleted')
-
+# update customer
 @app.route('/updatecustomer',methods=['POST', 'GET'])
 def updatecustomer():
+    dateTimeObj = datetime.now()
     if session['role'] == 'cashier':
         return render_template('access.html')
     c = 0
@@ -186,21 +195,28 @@ def updatecustomer():
             mycursor.execute("UPDATE customers SET customename = %s WHERE customerid = %s" ,(name,session['customerid']))
             mydb.commit()
             c=c+1
+            mycursor.execute('UPDATE  customers SET message = %s,lastupdated= %s WHERE customerid = %s',('Updated Name',dateTimeObj,session['customerid']) )
+            mydb.commit()
 
         if age != '':
             mycursor.execute("UPDATE customers SET age = %s WHERE customerid = %s" ,(age,session['customerid']))
             mydb.commit()
             c=c+1
+            mycursor.execute('UPDATE  customers SET message = %s,lastupdated= %s WHERE customerid = %s',('Updated age',dateTimeObj,session['customerid']) )
+            mydb.commit()
         if address != '':
             mycursor.execute("UPDATE customers SET address = %s WHERE customerid = %s" ,(address,session['customerid']))
             mydb.commit()
             c=c+1
+            mycursor.execute('UPDATE  customers SET message = %s,lastupdated= %s WHERE customerid = %s',('Updated address',dateTimeObj,session['customerid']) )
+            mydb.commit()
         if c>0:
+            
             return render_template('searchandupdate.html',message='Successfully updated')
-
+# create account for an existing customer
 @app.route('/createaccount',methods=['POST', 'GET'])
 def createaccount():
-    if session['role'] == 'customer':
+    if session['role'] == 'cashier':
         return render_template('access.html')
 
     if request.method == 'POST':
@@ -217,14 +233,15 @@ def createaccount():
             newaccountnumber = accountnumber[0] + 1
             mycursor.execute("UPDATE accounternumbers SET accountnumber = %s WHERE accountnumber = %s" ,(newaccountnumber,accountnumber[0]))
             mydb.commit()
-            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
+            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
             mydb.commit()
             return render_template('createaccount.html',message = 'Successfully created')
         return render_template('createaccount.html',message = 'Customer id is inactive')
     return render_template('createaccount.html',message = '')
+# delete an account of an Existing Customer
 @app.route('/deleteaccount',methods=['POST', 'GET'])
 def deleteaccount():
-    if session['role'] == 'customer':
+    if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method =='POST':
         accountnumber = request.form['accountnumber']
@@ -238,8 +255,21 @@ def deleteaccount():
 
         mycursor.execute('UPDATE accounts SET (accountstatus) = %s WHERE accountnumber = %s',(status,accountnumber))
         mydb.commit()
+        
         return render_template('deleteaccount.html',message = 'Successfully deleted')
     return render_template('deleteaccount.html',message = '')
+#logout Functionality
+@app.route('/individualcustomer',methods=['POST', 'GET'])
+def individualcustomer():
+    if request.method == 'POST':
+        customerid = request.form['customerid']
+        mycursor.execute('SELECT * from customers WHERE customerid = %s',(customerid,))
+        customer = mycursor.fetchone()
+        if not customer:
+            return render_template('individualsearch.html',message='No customer id found')
+        return render_template('individualcustomerstatus.html',customer = customer)
+
+    return render_template('individualsearch.html',message='')
 @app.route('/logout')
 def logout():
     if 'username' not in session:
@@ -247,7 +277,13 @@ def logout():
     logout_user()
     session.pop('username',None)
     return render_template('index.html', message= "successfully logged out")
-
+# All Customer Status
+@app.route('/customersstatus')
+def customerstatus():
+    mycursor.execute('SELECT * FROM customers')
+    customers = mycursor.fetchall()
+    print(customers)
+    return render_template('customersstatus.html',customers = customers)
 @lm.user_loader
 def load_user(user):
     return User.get(user)
