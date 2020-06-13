@@ -329,6 +329,8 @@ def searchfordredit():
         session['accountid'] = accountid
         mycursor.execute('SELECT * from accounts WHERE customerid = %s AND accountnumber = %s ',(customerid,accountid,))
         account = mycursor.fetchone()
+        if not account:
+            return render_template('creditamount.html',message='No customer found')
         session['balance'] = account[3]
         return render_template('creditmoney.html',account = account, customerid = customerid,accountid=accountid)
     return render_template('creditamount.html',message='')
