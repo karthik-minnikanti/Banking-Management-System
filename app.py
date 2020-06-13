@@ -229,7 +229,6 @@ def updatecustomer():
 def createaccount():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    console.log(session['role'])
     if session['role'] == 'cashier':
         return render_template('access.html')
 
