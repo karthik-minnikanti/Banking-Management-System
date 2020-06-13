@@ -1,0 +1,71 @@
+{% extends "navbar.html" %}
+{% block body %}
+<div class="row mt-5">
+  <div class="col-md-6 m-auto">
+    <div class="card card-body">
+      <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Debit Money</h1>  
+      <form action="/debitamount" method="POST" >
+        <div class="form-group">
+            {% if message != '' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             {% endif %}
+             <label for="">Customer ID</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="Enter Your ID"
+              value = "{{ customerid }}"
+              disabled=true
+            />
+        
+            <label for="">Account Number</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+             
+              class="form-control"
+              placeholder=""
+              value = "{{ accountid }}"
+              disabled=true
+            />
+           
+            <label for="">Balance</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              
+              class="form-control"
+          
+              value = "{{ account[3] }}"
+              disabled=true
+            />
+            <label for="">Amount</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="number"
+              
+              class="form-control"
+                name="amount"
+              value = ""
+            />
+            
+
+           
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Debit Money</button>
+      </form>
+      
+    </div>
+  </div>
+</div>
+</body>
+{% endblock %}

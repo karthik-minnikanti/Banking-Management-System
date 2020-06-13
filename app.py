@@ -356,10 +356,48 @@ def creditamount():
         msg = message
         mycursor.execute('INSERT INTO transactions(accountnumber,message,transactionid) values(%s,%s,%s)',(session['accountid'],msg,transactionid[0]))
         mydb.commit()
-        return render_template('creditamount.html',message='successfully credited')
+        return render_template('creditamount.html',message='successfully credited and transactionID is ' + str(transactionid[0]) )
+@app.route('/searchfordebit',methods = ['POST','GET'])
+def searchfordebit():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        customerid = request.form['customerid']
+        accountid = request.form['accountid']
+        session['customerid'] = customerid
+        session['accountid'] = accountid
+        mycursor.execute('SELECT * from accounts WHERE customerid = %s AND accountnumber = %s ',(customerid,accountid,))
+        account = mycursor.fetchone()
+        if not account:
+            return render_template('debitamount.html',message='No customer found')
+        session['balance'] = account[3]
+        return render_template('debitmoney.html',message= '',account = account, customerid = customerid,accountid=accountid)
 
-
-
+    return render_template('debitamount.html',message='')
+@app.route('/debitamount',methods=['POST','GET'])
+def debitamount():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        amount = request.form['amount']
+        if int(amount) > session['balance']:
+            return render_template('debitmoney.html',message='Enter less Amount',account = session['balance'], customerid = session['customerid'],accountid=session['accountid'])
+        mycursor.execute('SELECT * from transactionids')
+        transactionid = mycursor.fetchone()
+        newatransaction = transactionid[0] + 1
+        mycursor.execute("UPDATE transactionids SET transactionid = %s WHERE transactionid = %s" ,(newatransaction,transactionid[0]))
+        mydb.commit()
+        newamount  = session['balance'] - int(amount)
+        mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(newamount,session['accountid']))
+        mydb.commit()
+        msg = 'Debited ' + amount
+        mycursor.execute('INSERT INTO transactions(accountnumber,message,transactionid) values(%s,%s,%s)',(session['accountid'],msg,transactionid[0]))
+        mydb.commit()
+        return render_template('debitamount.html',message='Successfully Debited and transaction ID is '+ str(transactionid[0]) )
 # app name 
 @app.errorhandler(404) 
   
