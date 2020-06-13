@@ -73,8 +73,11 @@ def register():
 # Create Customer Route
 @app.route('/createcustomer',methods=['POST', 'GET'])
 def createCustomer():
-    
-    if session['role'] == 'cashier':
+    print(session['role'])
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+
+    if session['role']=='cashier':
         return render_template('access.html')
     if request.method == 'POST':
         name = request.form['name']
@@ -101,6 +104,8 @@ def createCustomer():
 # search for update
 @app.route('/searchandupdate',methods=['POST', 'GET'])
 def searchcustomer():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method == 'POST':
@@ -136,6 +141,8 @@ def searchcustomer():
 # serach for delete
 @app.route('/searchanddelete',methods=['POST', 'GET'])
 def searchanddelete():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method == 'POST':
@@ -171,6 +178,8 @@ def searchanddelete():
 # delete customer
 @app.route('/deletecustomer',methods=['POST', 'GET'])
 def deletecustomer():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method == 'POST':
@@ -183,6 +192,8 @@ def deletecustomer():
 # update customer
 @app.route('/updatecustomer',methods=['POST', 'GET'])
 def updatecustomer():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     dateTimeObj = datetime.now()
     if session['role'] == 'cashier':
         return render_template('access.html')
@@ -216,6 +227,9 @@ def updatecustomer():
 # create account for an existing customer
 @app.route('/createaccount',methods=['POST', 'GET'])
 def createaccount():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    console.log(session['role'])
     if session['role'] == 'cashier':
         return render_template('access.html')
 
@@ -241,6 +255,8 @@ def createaccount():
 # delete an account of an Existing Customer
 @app.route('/deleteaccount',methods=['POST', 'GET'])
 def deleteaccount():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     if session['role'] == 'cashier':
         return render_template('access.html')
     if request.method =='POST':
@@ -261,6 +277,8 @@ def deleteaccount():
 #logout Functionality
 @app.route('/individualcustomer',methods=['POST', 'GET'])
 def individualcustomer():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     if request.method == 'POST':
         customerid = request.form['customerid']
         mycursor.execute('SELECT * from customers WHERE customerid = %s',(customerid,))
@@ -280,10 +298,20 @@ def logout():
 # All Customer Status
 @app.route('/customersstatus')
 def customerstatus():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     mycursor.execute('SELECT * FROM customers')
     customers = mycursor.fetchall()
     print(customers)
     return render_template('customersstatus.html',customers = customers)
+# app name 
+@app.errorhandler(404) 
+  
+# inbuilt function which takes error as parameter 
+def not_found(e): 
+  
+# defining function 
+  return render_template('404.html') 
 @lm.user_loader
 def load_user(user):
     return User.get(user)
