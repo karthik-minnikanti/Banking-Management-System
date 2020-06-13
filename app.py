@@ -231,11 +231,23 @@ def createaccount():
         return render_template('index.html',message = 'Please Log in')
     if session['role'] == 'cashier':
         return render_template('access.html')
-
     if request.method == 'POST':
         customerid = request.form['customerid']
         accountype = request.form['type']
         amount = request.form['amount']
+        types = ['Savings','Current']
+        mycursor.execute('SELECT * from accounts WHERE customerid = %s ',(customerid,))
+        type1 = mycursor.fetchall()
+        print(type1)
+        if type1:
+            if len(type1) == 1:
+                if type1[0][2] == accountype:
+                    return render_template('createaccount.html',message = 'Customer is alreaduy having' + accountype  + 'account')
+            if len(type1) == 2:
+                if type1[0][2] == types[0] and type1[1][2] == accountype:
+                    return render_template('createaccount.html',message = 'Customer is alreaduy having Current account')
+                elif type1[1][2] == types[1]:
+                    return render_template('createaccount.html',message = 'Customer is alreaduy having a Savings account')
         mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
         customer = mycursor.fetchone()
         if not customer:
@@ -246,7 +258,7 @@ def createaccount():
             newaccountnumber = accountnumber[0] + 1
             mycursor.execute("UPDATE accounternumbers SET accountnumber = %s WHERE accountnumber = %s" ,(newaccountnumber,accountnumber[0]))
             mydb.commit()
-            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
+            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
             mydb.commit()
             return render_template('createaccount.html',message = 'Successfully created')
         return render_template('createaccount.html',message = 'Customer id is inactive')
@@ -303,6 +315,49 @@ def customerstatus():
     customers = mycursor.fetchall()
     print(customers)
     return render_template('customersstatus.html',customers = customers)
+
+@app.route('/searchforcredit', methods = ['POST','GET'])
+def searchfordredit():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        customerid = request.form['customerid']
+        accountid = request.form['accountid']
+        session['customerid'] = customerid
+        session['accountid'] = accountid
+        mycursor.execute('SELECT * from accounts WHERE customerid = %s AND accountnumber = %s ',(customerid,accountid,))
+        account = mycursor.fetchone()
+        session['balance'] = account[3]
+        return render_template('creditmoney.html',account = account, customerid = customerid,accountid=accountid)
+    return render_template('creditamount.html',message='')
+@app.route('/creditamount', methods = ['POST','GET'])
+def creditamount():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        amount = request.form['amount']
+        mycursor.execute('SELECT * from transactionids')
+        transactionid = mycursor.fetchone()
+        newatransaction = transactionid[0] + 1
+        mycursor.execute("UPDATE transactionids SET transactionid = %s WHERE transactionid = %s" ,(newatransaction,transactionid[0]))
+        mydb.commit()
+        oldbal = int(session['balance'])
+        print(type(oldbal))
+        balance = oldbal + int(amount)
+        mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(balance,session['accountid']))
+        mydb.commit()
+        message = 'credited ' + amount
+        msg = message
+        mycursor.execute('INSERT INTO transactions(accountnumber,message,transactionid) values(%s,%s,%s)',(session['accountid'],msg,transactionid[0]))
+        mydb.commit()
+        return render_template('creditamount.html',message='successfully credited')
+
+
+
 # app name 
 @app.errorhandler(404) 
   
