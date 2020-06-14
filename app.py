@@ -260,7 +260,7 @@ def createaccount():
             newaccountnumber = accountnumber[0] + 1
             mycursor.execute("UPDATE accounternumbers SET accountnumber = %s WHERE accountnumber = %s" ,(newaccountnumber,accountnumber[0]))
             mydb.commit()
-            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
+            mycursor.execute("IsNSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
             mydb.commit()
             return render_template('createaccount.html',message = 'Successfully created')
         return render_template('createaccount.html',message = 'Customer id is inactive')
@@ -288,6 +288,7 @@ def deleteaccount():
         return render_template('deleteaccount.html',message = 'Successfully deleted')
     return render_template('deleteaccount.html',message = '')
 #logout Functionality
+# it is working
 @app.route('/individualcustomer',methods=['POST', 'GET'])
 def individualcustomer():
     if 'username' not in  session:
