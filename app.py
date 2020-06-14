@@ -260,9 +260,9 @@ def createaccount():
             newaccountnumber = accountnumber[0] + 1
             mycursor.execute("UPDATE accounternumbers SET accountnumber = %s WHERE accountnumber = %s" ,(newaccountnumber,accountnumber[0]))
             mydb.commit()
-            mycursor.execute("IsNSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
+            mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
             mydb.commit()
-            return render_template('createaccount.html',message = 'Successfully created')
+            return render_template('createaccount.html',message = 'Successfully created and accountnumber is '+ str(accountnumber))
         return render_template('createaccount.html',message = 'Customer id is inactive')
     return render_template('createaccount.html',message = '')
 # delete an account of an Existing Customer
@@ -409,20 +409,26 @@ def searchforstatement():
         return render_template('access.html')
     if request.method == 'POST':
         accountid = request.form['accountid']
-        #lastten = request.form['lastten']
+        lastten = request.form['lastten']
         fromdate = request.form['fromdate']
         todate = request.form['todate']
         print(fromdate)
         print(todate)
-        #if lastten:
-            #mycursor.execute('SELECT * from transactions WHERE accountnumber = %s Limit 10',(accountid,))
-            #transactions = mycursor.fetchall()
-            #return render_template('renderstatement.html',transactions =transactions )
+        if lastten=='lastten':
+            mycursor.execute('SELECT * from transactions WHERE accountnumber = %s ORDER BY timeoftransaction DESC LIMIT 10',(accountid,))
+            transactions = mycursor.fetchall()
+            if not transactions:
+                return render_template('searchforstatement.html',message='No transactions found')
+            return render_template('renderstatement.html',transactions =transactions )
         if fromdate == '' or todate == '':
             return render_template('searchforstatement.html',message='Please Mention both the Dates')
+        elif fromdate>todate:
+            return render_template('searchforstatement.html',message='Please mention valid Dates')
         else:
             mycursor.execute("SELECT * FROM transactions WHERE timeoftransaction BETWEEN %s and %s and accountnumber = %s",(fromdate,todate,accountid))
             transactions=mycursor.fetchall()
+            if not transactions:
+                return render_template('searchforstatement.html',message='No transactions found')
             return render_template('renderstatement.html',transactions =transactions )
     return render_template('searchforstatement.html',message='')
 @app.route('/download/report/excel',methods = ['POST','GET'])
@@ -433,14 +439,43 @@ def downloadexcel():
         return render_template('access.html')
     if request.method == 'POST':
         accountid = request.form['accountid']
-        #lastten = request.form['lastten']
+        lastten = request.form['lastten']
         fromdate = request.form['fromdate']
         todate = request.form['todate']
+    if lastten=='lastten':
+            mycursor.execute('SELECT * from transactions WHERE accountnumber = %s ORDER BY timeoftransaction DESC LIMIT 10',(accountid,))
+            transactions = mycursor.fetchall()
+            if not transactions:
+                return render_template('searchforstatement.html',message='No transactions found')
+            output = io.BytesIO()
+            workbook = xlwt.Workbook()
+            sh = workbook.add_sheet('Transactions')
+            sh.write(0, 0, 'accountnumber')
+            sh.write(0, 1, 'Description')
+            sh.write(0, 2, 'Transaction Id')
+            sh.write(0, 3, 'Time')
+            idx = 0
+            for row in transactions:
+                sh.write(idx+1, 0, int(row[0]))
+                sh.write(idx+1, 1, row[1])
+                sh.write(idx+1, 2, row[2])
+                sh.write(idx+1, 3, str(row[3]))
+                idx += 1
+            workbook.save(output)
+            output.seek(0)
+            return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=transactions.xls"})
+            return render_template('renderstatement.html',transactions =transactions )
     if fromdate == '' or todate == '':
-            return render_template('searchforstatement.html',message='Please Mention both the Dates')
+        return render_template('searchforstatement.html',message='Please Mention both the Dates')
+    elif fromdate>todate:
+        return render_template('searchforstatement.html',message='Please mention valid Dates')
     else:
         mycursor.execute("SELECT * FROM transactions WHERE timeoftransaction BETWEEN %s and %s and accountnumber = %s",(fromdate,todate,accountid))
         transactions=mycursor.fetchall()
+        print('here comes')
+        if not transactions:
+            print('here conditon comes')
+            return render_template('searchforstatement.html',message='No transactions found')
         output = io.BytesIO()
         workbook = xlwt.Workbook()
         sh = workbook.add_sheet('Transactions')
@@ -459,6 +494,9 @@ def downloadexcel():
         output.seek(0)
         return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=transactions.xls"})
 # app name 
+@app.route('/Welcome')
+def welcome():
+    return render_template('welcome.html')
 @app.errorhandler(404) 
   
 # inbuilt function which takes error as parameter 
