@@ -1,0 +1,67 @@
+{% extends "navbar.html" %}
+{% block body %}
+    <div class="row mt-5">
+        <div class="col-md-6 m-auto">
+          <div class="card card-body">
+            
+            <form action="/download/report/excel" method="POST">
+              <div class="form-group">
+                {% if message != '' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             {% endif %}
+                <label for="">AccountID</label>
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                <input
+                  type="text"
+                  id="email"
+                  name="accountid"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="customCheck1" checked="" name = "lastten" value = 'lastten' >
+                    <label class="custom-control-label" for="customCheck1">Last Ten Transactions</label>
+                  </div>
+              </div>
+              <p style="align-items: center;text-align: center;">(OR)</p>
+              <div class="form-group">
+                <label for="email">From Date</label>
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                <input
+                  type="datetime-local"
+                  id="email"
+                  name="fromdate"
+                  class="form-control"
+                  placeholder="PAN NUMBER"
+                />
+              </div>
+              <div class="form-group">
+                <label for="password">To Date</label>
+                <i class="fa fa-key"></i>
+               
+                <input
+                  type="datetime-local"
+                  id="password"
+                  name="todate"
+                  class="form-control"
+                  placeholder="ADDRESS" 
+                  
+                />
+                
+                 
+              <button type="submit" class="btn btn-primary btn-block">GET Statement</button>
+              <button type="submit" class="btn btn-primary btn-block" formaction="/download/report/excel">Download Excel</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </body>
+    {% endblock %}

@@ -1,8 +1,10 @@
-from flask import Flask, render_template, url_for, request, session, redirect
+from flask import Flask, render_template, url_for, request, session, redirect,Response
 import bcrypt
 from flask_login import logout_user, LoginManager
 import mysql.connector
 from datetime import datetime
+import io
+import xlwt
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 lm = LoginManager()
@@ -398,6 +400,63 @@ def debitamount():
         mycursor.execute('INSERT INTO transactions(accountnumber,message,transactionid) values(%s,%s,%s)',(session['accountid'],msg,transactionid[0]))
         mydb.commit()
         return render_template('debitamount.html',message='Successfully Debited and transaction ID is '+ str(transactionid[0]) )
+@app.route('/searchforstatement', methods = ['POST','GET'])
+def searchforstatement():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        accountid = request.form['accountid']
+        #lastten = request.form['lastten']
+        fromdate = request.form['fromdate']
+        todate = request.form['todate']
+        print(fromdate)
+        print(todate)
+        #if lastten:
+            #mycursor.execute('SELECT * from transactions WHERE accountnumber = %s Limit 10',(accountid,))
+            #transactions = mycursor.fetchall()
+            #return render_template('renderstatement.html',transactions =transactions )
+        if fromdate == '' or todate == '':
+            return render_template('searchforstatement.html',message='Please Mention both the Dates')
+        else:
+            mycursor.execute("SELECT * FROM transactions WHERE timeoftransaction BETWEEN %s and %s and accountnumber = %s",(fromdate,todate,accountid))
+            transactions=mycursor.fetchall()
+            return render_template('renderstatement.html',transactions =transactions )
+    return render_template('searchforstatement.html',message='')
+@app.route('/download/report/excel',methods = ['POST','GET'])
+def downloadexcel():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        accountid = request.form['accountid']
+        #lastten = request.form['lastten']
+        fromdate = request.form['fromdate']
+        todate = request.form['todate']
+    if fromdate == '' or todate == '':
+            return render_template('searchforstatement.html',message='Please Mention both the Dates')
+    else:
+        mycursor.execute("SELECT * FROM transactions WHERE timeoftransaction BETWEEN %s and %s and accountnumber = %s",(fromdate,todate,accountid))
+        transactions=mycursor.fetchall()
+        output = io.BytesIO()
+        workbook = xlwt.Workbook()
+        sh = workbook.add_sheet('Transactions')
+        sh.write(0, 0, 'accountnumber')
+        sh.write(0, 1, 'Description')
+        sh.write(0, 2, 'Transaction Id')
+        sh.write(0, 3, 'Time')
+        idx = 0
+        for row in transactions:
+            sh.write(idx+1, 0, int(row[0]))
+            sh.write(idx+1, 1, row[1])
+            sh.write(idx+1, 2, row[2])
+            sh.write(idx+1, 3, str(row[3]))
+            idx += 1
+        workbook.save(output)
+        output.seek(0)
+        return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=transactions.xls"})
 # app name 
 @app.errorhandler(404) 
   
