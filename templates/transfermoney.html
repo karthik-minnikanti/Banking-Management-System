@@ -1,0 +1,69 @@
+{% extends "navbar.html" %}
+{% block body %}
+<div class="container">
+<div class="row mt-5">
+    <div class="col-md-6 m-auto">
+      <div class="card card-body">
+        
+        <form action="/transfermoney" method="POST">
+          <div class="form-group">
+            {% if message != '' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             {% endif %}
+            <label for="">Customer ID</label>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="email"
+              name="customerid"
+              class="form-control"
+              placeholder="Enter customer ID"
+            />
+           
+          </div>
+          <div class="form-group">
+            <label for="password">Debit Account</label>
+            <i class="fa fa-key"></i>
+            <div class="form-group">
+                <select name="debit" class="custom-select">
+                  <option selected="">Select Account Type</option>
+                  <option value="Savings">Savings</option>
+                  <option value="Current">Current</option>
+                 
+                </select>
+              </div> <div class="form-group">
+                <label for="password">credit account</label>
+                <i class="fa fa-key"></i>
+                <div class="form-group">
+                    <select name="credit" class="custom-select">
+                      <option selected="">Select Account Type</option>
+                      <option value="Savings">Savings</option>
+                      <option value="Current">Current</option>
+                     
+                    </select>
+                  </div>
+                  <label for="">Tranfer Amount</label>
+                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                  <input
+                    type="text"
+                    id="email"
+                    name="amount"
+                    class="form-control"
+                    placeholder="Enter Amount"
+                  />
+          
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Transfer Money</button>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+{% endblock %}

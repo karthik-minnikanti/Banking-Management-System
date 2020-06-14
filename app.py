@@ -35,9 +35,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(username)
-        print(password)
-        mycursor.execute('SELECT * FROM emp WHERE username = %s', (username,))
+        mycursor.execute('SELECT * FROM emp WHERE username = %s ', (username,))
         account = mycursor.fetchone()
         if account:
             if bcrypt.checkpw(password.encode('utf-8'),account[3].encode('utf-8')):
@@ -494,16 +492,81 @@ def downloadexcel():
         output.seek(0)
         return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=transactions.xls"})
 # app name 
+
+@app.route('/transfermoney', methods = ['POST','GET'])
+def transfermoney():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    if request.method == 'POST':
+        customerid = request.form['customerid']
+        debittype = request.form['debit']
+        credittype = request.form['credit']
+        tramount = request.form['amount']
+        if debittype == credittype:
+            return render_template('transfermoney.html',message='Account types should not be same')
+        mycursor.execute('SELECT * from customers WHERE customerid = %s',(customerid,))
+        customer = mycursor.fetchone()
+        if not customer:
+            return render_template('transfermoney.html',message='No customer Found')
+        elif customer[3] == '0':
+            session['customerid'] = customerid
+            return render_template('transfermoney.html',message='Customer is inActive')
+        else:
+            mycursor.execute('SELECT * from accounts WHERE customerid = %s',(customerid,))
+            accounts = mycursor.fetchall()
+            print('fetched')
+            if len(accounts) == 2:
+                mycursor.execute('SELECT * from accounts WHERE customerid = %s and accounttype = %s',(customerid,debittype,))
+                amount1 = mycursor.fetchone()
+                print(amount1[3])
+                print(tramount)
+                print(type(amount1[3]))
+                if int(amount1[3]) < int(tramount):
+                     return render_template('transfermoney.html',message= 'Insufficient Funds')
+                mycursor.execute('SELECT * from transactionids')
+                transactionid = mycursor.fetchone()
+                newatransaction = transactionid[0] + 1
+                mycursor.execute("UPDATE transactionids SET transactionid = %s WHERE transactionid = %s" ,(newatransaction,transactionid[0]))
+                mydb.commit()
+                msg = 'OWN Account Transfer '+ str(tramount)                  
+                mycursor.execute('INSERT INTO transactions(accountnumber,message,transactionid) values(%s,%s,%s)',(amount1[1],msg,transactionid[0]))
+                mydb.commit()
+                newamount = int(amount1[3]) - int(tramount)
+                mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(newamount,amount1[1]))
+                mydb.commit()
+                mycursor.execute('SELECT * from accounts WHERE customerid = %s and accounttype = %s',(customerid,credittype,))
+                craccount = mycursor.fetchone()
+                cramount = int(tramount)+int(craccount[3])
+                mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(cramount,craccount[1]))
+                mydb.commit()
+                return render_template('transfermoney.html',message= 'Successfully tranferred')
+            else:
+
+                return render_template('transfermoney.html',message = 'Customer Dont have two accounts')
+            
+
+
+    return render_template('transfermoney.html',message = '')
 @app.route('/Welcome')
 def welcome():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
     return render_template('welcome.html')
 @app.errorhandler(404) 
-  
+
 # inbuilt function which takes error as parameter 
 def not_found(e): 
   
 # defining function 
   return render_template('404.html') 
+@app.errorhandler(500)
+def internal_error(error):
+
+    return render_template('500.html') 
+
+
 @lm.user_loader
 def load_user(user):
     return User.get(user)
