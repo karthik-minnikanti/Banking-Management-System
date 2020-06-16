@@ -46,10 +46,10 @@ def login():
             return render_template('index.html',message= "Username and Password do not match")
         else:
             return render_template('index.html',message= "Username and Password do not match")
-    if session['username']:
+    if 'username' in session:
         return render_template('welcome.html')
     else:
-        return render_template('index.html')
+        return render_template('index.html',message = '')
 
 
 #admin validation--------------------------------------------------------------------------------------------
@@ -326,6 +326,8 @@ def deleteaccount():
 def individualcustomer():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
     if request.method == 'POST':
         customerid = request.form['customerid']
         mycursor.execute('SELECT * from customers WHERE customerid = %s',(customerid,))
@@ -347,6 +349,8 @@ def logout():
 def customerstatus():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
     mycursor.execute('SELECT * FROM customers')
     customers = mycursor.fetchall()
     print(customers)
@@ -356,7 +360,7 @@ def customerstatus():
 def searchfordredit():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         customerid = request.form['customerid']
@@ -378,7 +382,7 @@ def searchfordredit():
 def creditamount():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         amount = request.form['amount']
@@ -402,7 +406,7 @@ def creditamount():
 def searchfordebit():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         customerid = request.form['customerid']
@@ -425,7 +429,7 @@ def searchfordebit():
 def debitamount():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         amount = request.form['amount']
@@ -447,7 +451,7 @@ def debitamount():
 def searchforstatement():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         accountid = request.form['accountid']
@@ -477,7 +481,7 @@ def searchforstatement():
 def downloadexcel():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         accountid = request.form['accountid']
@@ -541,7 +545,7 @@ def downloadexcel():
 def transfermoney():
     if 'username' not in  session:
         return render_template('index.html',message = 'Please Log in')
-    if session['role'] == 'cashier':
+    if session['role'] == 'customer':
         return render_template('access.html')
     if request.method == 'POST':
         customerid = request.form['customerid']
@@ -593,6 +597,15 @@ def transfermoney():
 
 
     return render_template('transfermoney.html',message = '')
+@app.route('/accountsstatus')
+def accountstatus():
+    if 'username' not in  session:
+        return render_template('index.html',message = 'Please Log in')
+    if session['role'] == 'cashier':
+        return render_template('access.html')
+    mycursor.execute('SELECT  * from accounts')
+    accounts = mycursor.fetchall()
+    return render_template('accountstatus.html',accounts = accounts)
 @app.route('/Welcome')
 def welcome():
     if 'username' not in  session:
