@@ -11,7 +11,7 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 
-dateTimeObj = datetime.now()
+dateTimeObj = datetime.utcnow()
 
 mydb = mysql.connector.connect(
   host="sql2.freesqldatabase.com",
@@ -52,7 +52,32 @@ def login():
         return render_template('index.html')
 
 
-# Register Route
+#admin validation--------------------------------------------------------------------------------------------
+@app.route('/registerkey.html',methods=['POST','GET'])
+def keypage():
+    return render_template('registerkey.html',message = '')
+
+@app.route('/rootvalidation',methods=['POST','GET'])
+def rootvalidation():
+    key=request.form['key']
+    mycursor.execute('SELECT * FROM seckeys WHERE seckey = %s ', (key,))
+    keytup = mycursor.fetchone() 
+    print(keytup)
+    if keytup:
+        session['username']='key'
+        return render_template('register.html',message = '')
+    else:
+        return render_template('registerkey.html',message = 'Invalid key')
+                
+# Register Routes-------------------------------------------------------------------------------------------
+@app.route('/register.html',methods=['POST','GET'])
+def registerpage():
+    if 'username' in session:
+        if(session['username']=='key'):
+            return render_template('register.html')
+    return render_template('index.html',message='')
+
+
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
@@ -69,7 +94,7 @@ def register():
             return redirect(url_for('index'))        
         else:
             return 'User-already exists'        
-    return render_template('register.html')
+    return render_template('register.html',message="")
 # Create Customer Route
 @app.route('/createcustomer',methods=['POST', 'GET'])
 def createCustomer():
@@ -86,19 +111,20 @@ def createCustomer():
         age = request.form['age']
         gender = request.form['gender']
         message = "Just Created"
-        mycursor.execute('SELECT * FROM customers WHERE pannumber = %s', (pannumber,))
-        account = mycursor.fetchone()
-        if not account:
-            mycursor.execute('SELECT * FROM customerids' )
-            customerid = mycursor.fetchone()
-            newcustomerid = customerid[0] + 1
-            mycursor.execute("UPDATE customerids SET customerid = %s WHERE customerid = %s" ,(newcustomerid,customerid[0]))
-            mydb.commit()
-            mycursor.execute('INSERT INTO customers(customerid,customename,pannumber,address,age,gender,message,lastupdated)   VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (customerid[0],name,pannumber,address,age,gender,message,dateTimeObj))
-            mydb.commit()
-            return render_template('createcustomer.html',message='Successfully created')
-        return render_template('createcustomer.html',message='PanNumber already Exists')
-        
+        if len(pannumber) == 10:
+            mycursor.execute('SELECT * FROM customers WHERE pannumber = %s', (pannumber,))
+            account = mycursor.fetchone()
+            if not account:
+                mycursor.execute('SELECT * FROM customerids' )
+                customerid = mycursor.fetchone()
+                newcustomerid = customerid[0] + 1
+                mycursor.execute("UPDATE customerids SET customerid = %s WHERE customerid = %s" ,(newcustomerid,customerid[0]))
+                mydb.commit()
+                mycursor.execute('INSERT INTO customers(customerid,customename,pannumber,address,age,gender,message,lastupdated)   VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (customerid[0],name,pannumber,address,age,gender,message,dateTimeObj))
+                mydb.commit()
+                return render_template('createcustomer.html',message='Successfully created')
+            return render_template('createcustomer.html',message='PanNumber already Exists')
+        return render_template('createcustomer.html',message='PanNumber is invalid')
 
     return render_template('createcustomer.html',message='')
 # search for update
@@ -115,7 +141,9 @@ def searchcustomer():
         if customerid=='' and pannumber=='':
             return render_template('searchandupdate.html',message='Enter either customer Id or PAN Number')
         else:
-            if customerid != '' :
+            mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
+            customer = mycursor.fetchone()
+            if customer :
                 mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
                 customer = mycursor.fetchone()
                 if not customer:
@@ -152,7 +180,9 @@ def searchanddelete():
         if customerid=='' and pannumber=='':
             return render_template('searchanddelete.html',message='Enter either customer Id or PAN Number')
         else:
-            if customerid != '' :
+            mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
+            customer = mycursor.fetchone()
+            if customer :
                 mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
                 customer = mycursor.fetchone()
                 if not customer:
@@ -160,7 +190,7 @@ def searchanddelete():
                 else:
                     if customer[3] == '1':
                         session['customerid'] = customerid
-                        return render_template('deletecustomer.html',message='',customerid=customerid,address= customer[6],customername = customer[1],age=customer[7])
+                        return render_template('deletecustomer.html',message='',customerid=customerid,address=customer[6],customername=customer[1],age=customer[7])
                     return render_template('searchanddelete.html',message='Customer is inactive')
                     
             else:
@@ -221,9 +251,11 @@ def updatecustomer():
             c=c+1
             mycursor.execute('UPDATE  customers SET message = %s,lastupdated= %s WHERE customerid = %s',('Updated address',dateTimeObj,session['customerid']) )
             mydb.commit()
-        if c>0:
-            
+        if c>0:     
             return render_template('searchandupdate.html',message='Successfully updated')
+        if c==0:
+            return render_template('searchandupdate.html',message='No changes found to update')
+
 # create account for an existing customer
 @app.route('/createaccount',methods=['POST', 'GET'])
 def createaccount():
@@ -242,12 +274,12 @@ def createaccount():
         if type1:
             if len(type1) == 1:
                 if type1[0][2] == accountype:
-                    return render_template('createaccount.html',message = 'Customer is alreaduy having' + accountype  + 'account')
+                    return render_template('createaccount.html',message = 'Customer is already having ' + accountype  + 'account')
             if len(type1) == 2:
                 if type1[0][2] == types[0] and type1[1][2] == accountype:
-                    return render_template('createaccount.html',message = 'Customer is alreaduy having Current account')
+                    return render_template('createaccount.html',message = 'Customer is already having Current account')
                 elif type1[1][2] == types[1]:
-                    return render_template('createaccount.html',message = 'Customer is alreaduy having a Savings account')
+                    return render_template('createaccount.html',message = 'Customer is already having a Savings account')
         mycursor.execute('SELECT * FROM customers WHERE customerid = %s', (customerid,))
         customer = mycursor.fetchone()
         if not customer:
@@ -260,7 +292,8 @@ def createaccount():
             mydb.commit()
             mycursor.execute("INSERT INTO accounts(customerid,accountnumber,accounttype,amount)   VALUES (%s,%s,%s,%s)", (customerid,accountnumber[0],accountype,amount))
             mydb.commit()
-            return render_template('createaccount.html',message = 'Successfully created and accountnumber is '+ str(accountnumber))
+            ant = accountnumber[0]
+            return render_template('createaccount.html',message = 'Successfully created and accountnumber is '+ str(ant))
         return render_template('createaccount.html',message = 'Customer id is inactive')
     return render_template('createaccount.html',message = '')
 # delete an account of an Existing Customer
@@ -274,13 +307,15 @@ def deleteaccount():
         accountnumber = request.form['accountnumber']
         mycursor.execute('SELECT * FROM accounts WHERE accountnumber = %s',(accountnumber,) )
         account = mycursor.fetchone()
+        if account[3] != 0:
+            return render_template('deleteaccount.html',message = 'Please Debit amount ' )
         status = 0
         if not account:
             return render_template('deleteaccount.html',message = 'NO account found')
         if account[4] == '0':
             return render_template('deleteaccount.html',message = 'Account is already in  inactive state')
 
-        mycursor.execute('UPDATE accounts SET (accountstatus) = %s WHERE accountnumber = %s',(status,accountnumber))
+        mycursor.execute('UPDATE accounts SET accountstatus = %s WHERE accountnumber = %s',(status,accountnumber))
         mydb.commit()
         
         return render_template('deleteaccount.html',message = 'Successfully deleted')
@@ -330,8 +365,12 @@ def searchfordredit():
         session['accountid'] = accountid
         mycursor.execute('SELECT * from accounts WHERE customerid = %s AND accountnumber = %s ',(customerid,accountid,))
         account = mycursor.fetchone()
+        mycursor.execute('SELECT * FROM accounts WHERE accountnumber = %s',(session['accountid'],))
+        sta = mycursor.fetchone()
+        if sta[4] == '0':
+            return render_template('creditamount.html',message='Account is inactive')
         if not account:
-            return render_template('creditamount.html',message='No customer found')
+            return render_template('creditamount.html',message='No Customer found with that Account Number')
         session['balance'] = account[3]
         return render_template('creditmoney.html',account = account, customerid = customerid,accountid=accountid)
     return render_template('creditamount.html',message='')
@@ -351,6 +390,7 @@ def creditamount():
         oldbal = int(session['balance'])
         print(type(oldbal))
         balance = oldbal + int(amount)
+        
         mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(balance,session['accountid']))
         mydb.commit()
         message = 'credited ' + amount
@@ -371,6 +411,10 @@ def searchfordebit():
         session['accountid'] = accountid
         mycursor.execute('SELECT * from accounts WHERE customerid = %s AND accountnumber = %s ',(customerid,accountid,))
         account = mycursor.fetchone()
+        mycursor.execute('SELECT * FROM accounts WHERE accountnumber = %s',(session['accountid'],))
+        sta = mycursor.fetchone()
+        if sta[4] == '0':
+            return render_template('creditamount.html',message='Account is inactive')
         if not account:
             return render_template('debitamount.html',message='No customer found')
         session['balance'] = account[3]
@@ -541,7 +585,7 @@ def transfermoney():
                 cramount = int(tramount)+int(craccount[3])
                 mycursor.execute('UPDATE accounts SET amount = %s WHERE accountnumber = %s',(cramount,craccount[1]))
                 mydb.commit()
-                return render_template('transfermoney.html',message= 'Successfully tranferred')
+                return render_template('transfermoney.html',message= 'Successfully tranferred' + str(transactionid[0]))
             else:
 
                 return render_template('transfermoney.html',message = 'Customer Dont have two accounts')
@@ -566,12 +610,26 @@ def internal_error(error):
 
     return render_template('500.html') 
 
+# @app.errorhandler(2055)
+# def dbconn_error(e):
+#     return render_template('500.html')
+
+# @app.errorhandler(10060)
+# def dbconn_timeout(e):
+#     return render_template('500.html')
+
 
 @lm.user_loader
 def load_user(user):
-    return User.get(user)
+    # return User.get(user)
     return ("hi")
 
 if __name__ == '__main__':
     app.config['SECRET_KEY'] = 'the random string'  
     app.run(debug=True)
+
+
+#----------------------issues---------------------------
+#mysql.connector.errors.OperationalError: 2055: Lost connection to MySQL server at 'sql2.freesqldatabase.com:3306',
+# system error: 10060 A connection attempt failed because the connected party did not properly respond after a period of time, 
+# or established connection failed because connected host has failed to respond

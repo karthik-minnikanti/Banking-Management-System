@@ -16,7 +16,7 @@
              {% endif %}
              <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Debit Money</h1> 
              <label for="">Customer ID</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            
             <input
               type="text"
               id="email"
@@ -26,9 +26,9 @@
               value = "{{ customerid }}"
               disabled=true
             />
-        
+        <div> <p></p></div>
             <label for="">Account Number</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+          
             <input
               type="text"
              
@@ -37,9 +37,9 @@
               value = "{{ accountid }}"
               disabled=true
             />
-           
+            <div> <p></p></div>
             <label for="">Balance</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+           
             <input
               type="text"
               
@@ -48,14 +48,18 @@
               value = "{{ account[3] }}"
               disabled=true
             />
-            <label for="">Amount</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <div> <p></p></div>
+            <label for="">*Amount</label>
+         
             <input
               type="number"
               
               class="form-control"
                 name="amount"
               value = ""
+              placeholder="Enter amount to Debit"
+              min="0" step="1" oninput="validity.valid||(value='');"
+              required
             />
             
 

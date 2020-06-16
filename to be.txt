@@ -1,0 +1,4 @@
+customer creation name;
+footer
+PAN len:
+check for account status before deposit and debit

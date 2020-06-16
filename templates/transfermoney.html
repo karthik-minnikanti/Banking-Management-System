@@ -16,46 +16,49 @@
              </div>
              {% endif %}
              <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Transfer Money</h1> 
-            <label for="">Customer ID</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <label for="">*Customer ID</label>
+          
             <input
               type="text"
               id="email"
               name="customerid"
               class="form-control"
               placeholder="Enter customer ID"
+              required
             />
            
           </div>
           <div class="form-group">
-            <label for="password">Debit Account</label>
-            <i class="fa fa-key"></i>
+            <label for="password">*Debit Account</label>
+          
             <div class="form-group">
-                <select name="debit" class="custom-select">
-                  <option selected="">Select Account Type</option>
+                <select required name="debit" class="custom-select">
+                  <option value="" disabled selected>Select Account Type</option>
                   <option value="Savings">Savings</option>
                   <option value="Current">Current</option>
                  
                 </select>
               </div> <div class="form-group">
-                <label for="password">credit account</label>
-                <i class="fa fa-key"></i>
+                <label for="password">*credit account</label>
+             
                 <div class="form-group">
                     <select name="credit" class="custom-select">
-                      <option selected="">Select Account Type</option>
+                      <option value="" disabled selected>Select Account Type</option>
                       <option value="Savings">Savings</option>
                       <option value="Current">Current</option>
                      
                     </select>
                   </div>
-                  <label for="">Tranfer Amount</label>
-                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                  <label for="">*Tranfer Amount</label>
+                  
                   <input
-                    type="text"
+                    type="number"
                     id="email"
                     name="amount"
                     class="form-control"
                     placeholder="Enter Amount"
+                    min="0" step="1" oninput="validity.valid||(value='');"
+                    required
                   />
           
           </div>

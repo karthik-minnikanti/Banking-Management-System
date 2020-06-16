@@ -21,7 +21,7 @@
              {% endif %}
            
               
-            <label for="email">Employee ID</label>
+            <label for="email">*Employee ID</label>
             <i class="fa fa-envelope" aria-hidden="true"></i>
             <input
               
@@ -29,10 +29,11 @@
               name="username"
               class="form-control"
               placeholder="Enter Your ID"
+              required
             />
           </div>
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">*Password</label>
             <i class="fa fa-key"></i>
            
             <input
@@ -41,6 +42,7 @@
               name="password"
               class="form-control"
               placeholder="Enter Password" 
+              required
               
             />
             
@@ -48,7 +50,7 @@
           <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>
         <p class="lead mt-4" >
-          Don't Have an Account? <a  href="/register">Register</a>
+          Don't Have an Account? <a  href="/registerkey.html">Register</a>
         </p>
       </div>
     </div>

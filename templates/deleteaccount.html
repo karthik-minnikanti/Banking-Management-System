@@ -5,7 +5,7 @@
   <div class="col-md-6 m-auto">
     <div class="card card-body">
       
-      <form action="/deleteaccount" method="POST" onsubmit="return confirm(' you want to delete?')">
+      <form action="/deleteaccount" method="POST" onsubmit="return confirm(' Are you sure want to delete?')">
         <div class="form-group">
           {% if message != '' %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,25 +16,18 @@
              </div>
              {% endif %}
              <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Delete Account</h1> 
-             <label for="">Account ID</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+             <label for="">*Account Number</label>
+         
             <input
               type="text"
               id="email"
               name="accountnumber"
               class="form-control"
-              placeholder="Enter Account Id"
+              placeholder="Enter Account Number"
               value = ""
+              required
               
             />
-            <label for="">Account Type</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
-            <select name="type" class="custom-select">
-                <option selected="">Select Account Type</option>
-                <option value="Savings">Savings</option>
-                <option value="Current">Current</option>
-               
-              </select>
             
         
            

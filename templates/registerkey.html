@@ -1,0 +1,80 @@
+
+
+<!-- <div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <form method=POST action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Full Name</label>
+                        <input type="text" class="form-control" name="fullname" placeholder="Full Name">
+                    </div>
+                    <label for="exampleInputEmail1">Username</label>
+                    <input type="text" class="form-control" name="username" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Role</label>
+                    <input type="text" class="form-control" name="role" placeholder="c or ce">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <input type="password" class="form-control" name="password" placeholder="Password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Register</button>
+            </form>
+            <br>
+        </div>
+    </div>
+</div> -->
+
+
+
+
+
+{% extends "layout.html" %}
+{% block body %}
+<link
+      rel="stylesheet"
+      href="https://bootswatch.com/4/lux/bootstrap.min.css"
+    />
+<div class="container">
+<div class="row mt-5">
+    <div class="col-md-6 m-auto">
+      <div class="card card-body">
+        <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Login</h1>  
+        <form action="/rootvalidation" method="POST">
+          <div class="form-group">
+            {% if message != '' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+               </button>
+             </div>
+             {% endif %}
+           
+  
+          <div class="form-group">
+            <label for="password">*Key</label>
+            <i class="fa fa-key"></i>
+           
+            <input
+              type="password"
+              id="password"
+              name="key"
+              class="form-control"
+              placeholder="Enter Password" 
+              required
+              
+            />
+            
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+      
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

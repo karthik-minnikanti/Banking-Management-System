@@ -5,7 +5,7 @@
   <div class="col-md-6 m-auto">
     <div class="card card-body">
       
-      <form action="/deletecustomer" method="POST" onsubmit="return confirm(' you want to delete?')">
+      <form action="/deletecustomer" method="POST" onsubmit="return confirm(' Are you sure want to delete?')">
         <div class="form-group">
           {% if message != '' %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -17,7 +17,7 @@
              {% endif %}
              <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Delete Customer</h1> 
              <label for="">Customer ID</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+             <i class="fa fa-id-badge" aria-hidden="true"></i>
             <input
               type="text"
               id="email"
@@ -27,31 +27,35 @@
               value = "{{ customerid }}"
               disabled=true
             />
+            <div><p> <span>  </span>  </p></div>
+            
             <label for="">Customer Name</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-user" aria-hidden="true"></i>
             <input
              
               name=""
               class="form-control"
-              placeholder="Enter Your ID"
+              placeholder=""
               value = "{{ customername }}"
               disabled=true
             />
             
-        
+            <div><p> <span>  </span>  </p></div>
+            
             <label for="">Address</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-location-arrow" aria-hidden="true"></i>
             <input
               type="text"
              
               class="form-control"
-              placeholder="Enter Your Address"
+              placeholder=""
               value = "{{ address }}"
               disabled=true
             />
-           
+            <div><p> <span>  </span>  </p></div>
+            
             <label for="">Age</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-birthday-cake" aria-hidden="true"></i>
             <input
               type="text"
               

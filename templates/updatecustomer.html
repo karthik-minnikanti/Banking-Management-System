@@ -16,7 +16,7 @@
              {% endif %}
              <h1 class="text-center mb-3"><i class="fa fa-university"></i>  Update Customer</h1> 
              <label for="">Customer ID</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+             <i class="fa fa-id-badge" aria-hidden="true"></i>
             <input
               type="text"
               id="email"
@@ -26,8 +26,9 @@
               value = "{{ customerid }}"
               disabled=true
             />
+            <div><p> <span>  </span>  </p></div>
             <label for="">Customer Name</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-user" aria-hidden="true"></i>
             <input
              
               name=""
@@ -36,18 +37,18 @@
               value = "{{ customername }}"
               disabled=true
             />
+            <div><p> <span>  </span>  </p></div>
             
-            <i class="fa fa-envelope" aria-hidden="true"></i>
             <input
               type="text"
               id="email"
               name="customername"
               class="form-control"
-              placeholder="Change Your Name"
+              placeholder="Edit Name"
              
             />
             <label for="">Address</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-location-arrow" aria-hidden="true"></i>
             <input
               type="text"
              
@@ -56,17 +57,18 @@
               value = "{{ address }}"
               disabled=true
             />
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <div><p> <span>  </span>  </p></div>
+            
             <input
               type="text"
               id="email"
               name="address"
               class="form-control"
-              placeholder="Enter Your Address"
+              placeholder="Edit Address"
              
             />
             <label for="">Age</label>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <i class="fa fa-birthday-cake" aria-hidden="true"></i>
             <input
               type="text"
               
@@ -75,14 +77,15 @@
               value = "{{ age }}"
               disabled=true
             />
-            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <div><p> <span>  </span>  </p></div>
+            
             <input
-              type="text"
+              type="number"
               id="email"
               name="age"
               class="form-control"
-              placeholder="Enter Your Age"
-             
+              placeholder="Edit Age"
+              min="0" step="1" oninput="validity.valid||(value='');"
             />
 
            
