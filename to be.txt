@@ -1,3 +1,0 @@
-customer creation name;
-footer
-check for account status before deposit and debit
