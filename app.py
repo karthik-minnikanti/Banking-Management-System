@@ -22,7 +22,7 @@ mydb = mysql.connector.connect(
   database="sql2347742"
 )
 mycursor = mydb.cursor()
-
+#jjkdfs
 #----------------routes----------------------
 
 #index root
